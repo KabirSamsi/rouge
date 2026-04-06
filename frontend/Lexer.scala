@@ -100,7 +100,7 @@ object Lexer {
                 } else if (singleCharMappings.contains(h)) {
                     lex(
                         if buffer.isEmpty()
-                        then tokens
+                        then tokens.::(singleCharMappings.apply(h))
                         else tokens.::(Tokens.Handle(buffer)).::(singleCharMappings.apply(h)), "", false, false, tl)
 
                 // If new character is not an individual token, continue to build buffer
