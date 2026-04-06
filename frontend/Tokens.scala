@@ -1,0 +1,89 @@
+package frontend
+
+object Tokens {
+    // Ruby tokens
+    sealed trait Token
+
+    // Misc
+    case class UBegin() extends Token
+    case class UEnd() extends Token
+    case class Alias() extends Token
+    case class Puts() extends Token
+    case class Redo() extends Token
+    case class Rescue() extends Token
+    case class Retry() extends Token
+    case class Yield() extends Token
+    case class Undef() extends Token
+    case class RNil() extends Token
+    
+    // Classes and Objects
+    case class Class() extends Token
+    case class Super() extends Token
+    case class Self() extends Token
+    case class Module() extends Token
+
+    // Bracket Keywords
+    case class LParen() extends Token
+    case class RParen() extends Token
+    case class LBracket() extends Token
+    case class RBracket() extends Token
+    case class LBrace() extends Token
+    case class RBrace() extends Token
+
+    // Control Flow Keywords
+    case class If() extends Token
+    case class Elsif() extends Token
+    case class Else() extends Token
+    case class Then() extends Token
+    case class Unless() extends Token
+    case class While() extends Token
+    case class Until() extends Token
+    case class Do() extends Token
+    case class Break() extends Token
+    case class Case() extends Token
+    case class Begin() extends Token
+    case class End() extends Token
+
+    // Booleans
+    case class True() extends Token
+    case class False() extends Token
+    case class And() extends Token
+    case class Or() extends Token
+    case class Not() extends Token
+
+    // Function Keywords
+    case class Def() extends Token
+    case class Defined() extends Token
+    case class Return() extends Token
+
+    // Containment
+    case class For() extends Token
+    case class In() extends Token
+    
+    // Datatypes
+    case class Handle(value: String) extends Token
+    case class Str(value: String) extends Token
+    case class Int(value: Integer) extends Token
+    case class Character(value: Char) extends Token
+
+    // Operators
+    case class Times() extends Token
+    case class Plus() extends Token
+    case class Minus() extends Token
+    case class Divide() extends Token
+    case class Equals() extends Token
+    case class Greater() extends Token
+    case class Less() extends Token
+    case class Bang() extends Token
+    case class Ternary() extends Token
+    case class Colon() extends Token
+    case class Mod() extends Token
+    case class Dot() extends Token
+    case class Comma() extends Token
+
+    // Escapes
+    case class DoubleQuote() extends Token
+    case class SingleQuote() extends Token
+    case class Backslash() extends Token
+    case class LineBreak() extends Token
+}

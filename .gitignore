@@ -2,3 +2,6 @@
 .metals
 .scala-build
 .vscode
+*.class
+*.tasty
+.DS_Store
