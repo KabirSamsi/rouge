@@ -76,6 +76,18 @@ object Tokens {
     case class Less() extends Token
     case class Bang() extends Token
     case class Ternary() extends Token
+
+    case class Peq() extends Token
+    case class Meq() extends Token
+    case class Teq() extends Token
+    case class Deq() extends Token
+    case class Modeq() extends Token
+    case class Equality() extends Token
+    case class Treq() extends Token
+    case class Geq() extends Token
+    case class Leq() extends Token
+    case class Neq() extends Token
+
     case class Colon() extends Token
     case class Mod() extends Token
     case class Dot() extends Token
