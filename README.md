@@ -1,2 +1,2 @@
 # rouge
-Lightweight Ruby static typechecker and interpreter
+Lightweight Ruby static typechecker and compiler targeting RISC-V assembly.
