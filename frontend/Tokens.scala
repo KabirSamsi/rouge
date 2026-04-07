@@ -76,6 +76,9 @@ object Tokens {
     case class Less() extends Token
     case class Bang() extends Token
     case class Ternary() extends Token
+    case class InstanceVar() extends Token
+    case class ClassVar() extends Token
+    case class GlobalVar() extends Token
 
     case class Peq() extends Token
     case class Meq() extends Token

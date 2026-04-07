@@ -17,6 +17,8 @@ object Lexer {
         '!' -> Tokens.Bang(),
         '%' -> Tokens.Mod(),
         '?' -> Tokens.Ternary(),
+        '@' -> Tokens.InstanceVar(),
+        '$' -> Tokens.GlobalVar(),
         ':' -> Tokens.Colon(),
         '\\' -> Tokens.Backslash(),
         '"' -> Tokens.DoubleQuote(),
@@ -121,8 +123,14 @@ object Lexer {
                         then tokens.::(singleCharMappings.apply(h))
                         else tokens.::(Tokens.Handle(buffer)).::(singleCharMappings.apply(h)), "", false, false, tl)
 
-                // If new character is not an individual token, continue to build buffer
-                } else {
+                // Store new number if no string has been accumulated so far
+                } else if (h.isDigit && buffer.isEmpty()) {
+                    lex(tokens.::(Tokens.Int(h.asDigit)), "", false, false, tl)
+
+                // Comment heading – disregard everything else along this
+                // } else if (h == '#') {
+
+                } else { // If new character is not an individual token, continue to build buffer
                     lex(tokens, buffer + h, false, false, tl)
                 }
             }
@@ -149,6 +157,7 @@ object Lexer {
             case Tokens.Equals() :: Tokens.Equals() :: tl => Tokens.Equality() :: lex_opt(tl)
             case Tokens.Equality() :: Tokens.Equals() :: tl => Tokens.Treq() :: lex_opt(tl)
             case Tokens.Bang() :: Tokens.Equals() :: tl => Tokens.Neq() :: lex_opt(tl)
+            case Tokens.InstanceVar() :: Tokens.InstanceVar() :: tl => Tokens.ClassVar() :: lex_opt(tl)
 
             /* Line Break Optimization for CFG Generation */
             case Tokens.LineBreak() :: Tokens.LineBreak() :: tl => lex_opt(Tokens.LineBreak() :: tl)
