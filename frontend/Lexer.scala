@@ -17,8 +17,8 @@ object Lexer {
         '!' -> Tokens.Bang(),
         '%' -> Tokens.Mod(),
         '?' -> Tokens.Ternary(),
-        '@' -> Tokens.InstanceVar(),
-        '$' -> Tokens.GlobalVar(),
+        '@' -> Tokens.InstanceFlag(),
+        '$' -> Tokens.GlobalFlag(),
         ':' -> Tokens.Colon(),
         '\\' -> Tokens.Backslash(),
         '"' -> Tokens.DoubleQuote(),
@@ -49,6 +49,8 @@ object Lexer {
         "class" -> Tokens.Class(),
         "super" -> Tokens.Super(),
         "self" -> Tokens.Self(),
+        "attr_accessor" -> Tokens.AttrAccessor(),
+        "new" -> Tokens.New(),
         "module" -> Tokens.Module(),
         "if" -> Tokens.If(),
         "elsif" -> Tokens.Elsif(),
@@ -73,6 +75,14 @@ object Lexer {
         "for" -> Tokens.For(),
         "in" -> Tokens.In()
     )
+
+    def turn_dec_float(number: scala.Float) : scala.Float = {
+        if (number < 1) then return number else turn_dec_float (number/ 10)
+    }
+    
+    def turn_dec(number: scala.Int) : scala.Float = {
+        if (number < 1) then return number.toFloat else turn_dec_float (number.toFloat / 10)
+    }
     
     /*
         * Lexes a program string into a stream of tokens.
@@ -94,48 +104,69 @@ object Lexer {
                 else tokens.::(Tokens.Handle(buffer)).reverse
 
             case h :: tl => {
-                // Space/delineation in keywords -> append buffer
-                if (h == ' ' || h == '\n') {
-                    if (keywordMappings.contains(buffer)) {
-                        lex(
-                            if h == '\n' // Add line break for separators
-                            then tokens.::(keywordMappings.apply(buffer)).::(Tokens.LineBreak())
-                            else tokens.::(keywordMappings.apply(buffer)), "", false, false, tl)
-                    } else { // Add new token if there are keywords in buffer
-                        if (h == '\n') { // Add line break for separators
-                            lex((
-                                if buffer.isEmpty()
-                                then tokens
-                                else tokens.::(Tokens.Handle(buffer)))
-                            .::(Tokens.LineBreak()), "", false, false, tl)
-                        } else {
-                            lex(
-                                if buffer.isEmpty()
-                                then tokens
-                                else tokens.::(Tokens.Handle(buffer)), "", false, false, tl)
+                
+                if (isString) { // Complete string currently being built
+                    if (h == '\"')
+                    then lex(tokens.::(Tokens.Str(buffer)), "", false, false, tl)
+                    else lex(tokens, buffer + h, true, false, tl)
+
+                } else {
+
+                    // Space/delineation in keywords -> append buffer
+                    if (h == ' ' || h == '\n') {
+                        if (keywordMappings.contains(buffer)) {
+                            lex( // Add new token if there are keywords in buffer
+                                if h == '\n' // Add line break for separators
+                                then tokens.::(keywordMappings.apply(buffer)).::(Tokens.LineBreak())
+                                else tokens.::(keywordMappings.apply(buffer)), "", false, h != '\n' && isComment, tl)
+                        } else { 
+                            if (h == '\n') { // Add line break for separators
+                                lex((
+                                    if buffer.isEmpty()
+                                    then tokens
+                                    else tokens.::(Tokens.Handle(buffer)))
+                                .::(Tokens.LineBreak()), "", false, false, tl) // Only way to break out of a comment
+                            } else {
+                                lex(
+                                    if buffer.isEmpty()
+                                    then tokens
+                                    else tokens.::(Tokens.Handle(buffer)), "", false, isComment, tl)
+                            }
                         }
+
+                    // Start building string
+                    } else if (h == '"' && !isComment) {
+                        lex(
+                            if buffer.isEmpty()
+                            then tokens
+                            else tokens.::(Tokens.Handle(buffer)), "", true, false, tl)
+
+                    // If new character is an individual token, add it along with buffer
+                    } else if (singleCharMappings.contains(h) && !isComment) {
+                        lex(
+                            if buffer.isEmpty()
+                            then tokens.::(singleCharMappings.apply(h))
+                            else tokens.::(Tokens.Handle(buffer)).::(singleCharMappings.apply(h)), "", false, false, tl)
+
+                    // Store new number if no string has been accumulated so far
+                    } else if (h.isDigit && buffer.isEmpty() && !isComment) {
+                        lex(tokens.::(Tokens.Int(h.asDigit)), "", false, false, tl)
+
+                    // Comment heading – start disregarding til new line and don't accumulate.
+                    } else if (h == '#' && !isComment) {
+                        if (keywordMappings.contains(buffer)) { // Add remainder buffer
+                            lex(tokens.::(keywordMappings.apply(buffer)), "", false, true, tl)
+                        } else { 
+                            lex(tokens, "", false, true, tl)
+                        }
+
+                    // If not comment and new character is not an individual token, continue to build buffer
+                    } else {
+                        lex(tokens, if isComment then buffer else buffer + h, false, isComment, tl)
                     }
-
-                // If new character is an individual token, add it along with buffer
-                } else if (singleCharMappings.contains(h)) {
-                    lex(
-                        if buffer.isEmpty()
-                        then tokens.::(singleCharMappings.apply(h))
-                        else tokens.::(Tokens.Handle(buffer)).::(singleCharMappings.apply(h)), "", false, false, tl)
-
-                // Store new number if no string has been accumulated so far
-                } else if (h.isDigit && buffer.isEmpty()) {
-                    lex(tokens.::(Tokens.Int(h.asDigit)), "", false, false, tl)
-
-                // Comment heading – disregard everything else along this
-                // } else if (h == '#') {
-
-                } else { // If new character is not an individual token, continue to build buffer
-                    lex(tokens, buffer + h, false, false, tl)
                 }
             }
     }
-
     
     /*
         * Optimizes token stream through operator fusion, integer accumulation, line breaks, etc.
@@ -157,7 +188,9 @@ object Lexer {
             case Tokens.Equals() :: Tokens.Equals() :: tl => Tokens.Equality() :: lex_opt(tl)
             case Tokens.Equality() :: Tokens.Equals() :: tl => Tokens.Treq() :: lex_opt(tl)
             case Tokens.Bang() :: Tokens.Equals() :: tl => Tokens.Neq() :: lex_opt(tl)
-            case Tokens.InstanceVar() :: Tokens.InstanceVar() :: tl => Tokens.ClassVar() :: lex_opt(tl)
+            case Tokens.Greater() :: Tokens.Greater() :: tl => Tokens.RShift() :: lex_opt(tl)
+            case Tokens.Less() :: Tokens.Less() :: tl => Tokens.LShift() :: lex_opt(tl)
+            case Tokens.InstanceFlag() :: Tokens.InstanceFlag() :: tl => lex_opt(Tokens.ClassFlag() :: tl)
 
             /* Line Break Optimization for CFG Generation */
             case Tokens.LineBreak() :: Tokens.LineBreak() :: tl => lex_opt(Tokens.LineBreak() :: tl)
@@ -166,6 +199,32 @@ object Lexer {
 
             /* Integer and float collection */
             case Tokens.Int(i1) :: Tokens.Int(i2) :: tl => lex_opt(Tokens.Int(i1 * 10 + i2) :: tl)
+            case Tokens.Int(i1) :: Tokens.Dot() :: tl => {
+                lex_opt(tl) match
+                    case Tokens.Int(i2) :: tl2 => Tokens.Float(i1 + turn_dec(i2)) :: tl2
+                    case Tokens.Float(i2) :: tl2 => Tokens.Float(i1 + turn_dec_float(i2)) :: tl2
+                    case tl2 => Tokens.Int(i1) :: tl2
+            }
+
+            /* Character and string collection */
+            case Tokens.SingleQuote() :: Tokens.Handle(c) :: Tokens.SingleQuote() :: tl => {
+                if (c.length() == 1)
+                then Tokens.Character(c.charAt(0)) :: lex_opt(tl)
+                else Tokens.SingleQuote() :: Tokens.Handle(c) :: Tokens.SingleQuote() :: lex_opt(tl)
+            }
+
+            /* Typing and objects */
+            case Tokens.Colon() :: Tokens.Colon() :: tl => Tokens.Membership() :: lex_opt(tl)
+            case Tokens.Handle(v) :: Tokens.Colon() :: Tokens.Handle(t) :: tl => Tokens.TypedHandle(v, t) :: lex_opt(tl)
+            case Tokens.InstanceFlag() :: Tokens.Handle(v) :: tl => Tokens.InstanceVar(v) :: lex_opt(tl)
+            case Tokens.ClassFlag() :: Tokens.Handle(v) :: tl => Tokens.ClassVar(v) :: lex_opt(tl)
+            case Tokens.GlobalFlag() :: Tokens.Handle(v) :: tl => Tokens.GlobalVar(v) :: lex_opt(tl)
+            case Tokens.Handle(v) :: tl => (
+                if v.equals(v.toUpperCase())
+                then Tokens.Const(v)
+                else Tokens.Handle(v)) :: lex_opt(tl)
+
+            /* Default case */
             case hd :: tl => hd :: lex_opt(tl)
     }
 }

@@ -20,6 +20,9 @@ object Tokens {
     case class Class() extends Token
     case class Super() extends Token
     case class Self() extends Token
+    case class AttrAccessor() extends Token
+    case class New() extends Token
+
     case class Module() extends Token
 
     // Bracket Keywords
@@ -59,26 +62,34 @@ object Tokens {
     // Containment
     case class For() extends Token
     case class In() extends Token
-    
-    // Datatypes
-    case class Handle(value: String) extends Token
-    case class Str(value: String) extends Token
-    case class Int(value: Integer) extends Token
-    case class Character(value: Char) extends Token
 
     // Operators
     case class Times() extends Token
     case class Plus() extends Token
     case class Minus() extends Token
     case class Divide() extends Token
+    case class LShift() extends Token
+    case class RShift() extends Token
     case class Equals() extends Token
     case class Greater() extends Token
     case class Less() extends Token
     case class Bang() extends Token
     case class Ternary() extends Token
-    case class InstanceVar() extends Token
-    case class ClassVar() extends Token
-    case class GlobalVar() extends Token
+    case class InstanceFlag() extends Token
+    case class ClassFlag() extends Token
+    case class GlobalFlag() extends Token
+    
+    // Datatypes
+    case class Handle(value: String) extends Token
+    case class TypedHandle(value: String, typ: String) extends Token
+    case class InstanceVar(value: String) extends Token
+    case class ClassVar(value: String) extends Token
+    case class GlobalVar(value: String) extends Token
+    case class Const(value: String) extends Token
+    case class Str(value: String) extends Token
+    case class Int(value: scala.Int) extends Token
+    case class Float(value: scala.Float) extends Token
+    case class Character(value: scala.Char) extends Token
 
     case class Peq() extends Token
     case class Meq() extends Token
@@ -95,6 +106,7 @@ object Tokens {
     case class Mod() extends Token
     case class Dot() extends Token
     case class Comma() extends Token
+    case class Membership() extends Token
 
     // Escapes
     case class DoubleQuote() extends Token
