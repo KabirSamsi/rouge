@@ -64,10 +64,11 @@ object Tokens {
     case class In() extends Token
 
     // Operators
-    case class Times() extends Token
     case class Plus() extends Token
     case class Minus() extends Token
+    case class Times() extends Token
     case class Divide() extends Token
+    case class Mod() extends Token
     case class LShift() extends Token
     case class RShift() extends Token
     case class Equals() extends Token
@@ -103,10 +104,10 @@ object Tokens {
     case class Neq() extends Token
 
     case class Colon() extends Token
-    case class Mod() extends Token
+    case class Semicolon() extends Token
     case class Dot() extends Token
     case class Comma() extends Token
-    case class Membership() extends Token
+    case class Doublecolon() extends Token
 
     // Escapes
     case class DoubleQuote() extends Token

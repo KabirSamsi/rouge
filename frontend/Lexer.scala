@@ -20,6 +20,7 @@ object Lexer {
         '@' -> Tokens.InstanceFlag(),
         '$' -> Tokens.GlobalFlag(),
         ':' -> Tokens.Colon(),
+        ';' -> Tokens.Semicolon(),
         '\\' -> Tokens.Backslash(),
         '"' -> Tokens.DoubleQuote(),
         '\'' -> Tokens.SingleQuote(),
@@ -214,7 +215,7 @@ object Lexer {
             }
 
             /* Typing and objects */
-            case Tokens.Colon() :: Tokens.Colon() :: tl => Tokens.Membership() :: lex_opt(tl)
+            case Tokens.Colon() :: Tokens.Colon() :: tl => Tokens.Doublecolon() :: lex_opt(tl)
             case Tokens.Handle(v) :: Tokens.Colon() :: Tokens.Handle(t) :: tl => Tokens.TypedHandle(v, t) :: lex_opt(tl)
             case Tokens.InstanceFlag() :: Tokens.Handle(v) :: tl => Tokens.InstanceVar(v) :: lex_opt(tl)
             case Tokens.ClassFlag() :: Tokens.Handle(v) :: tl => Tokens.ClassVar(v) :: lex_opt(tl)
