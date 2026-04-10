@@ -1,6 +1,6 @@
 def add(a : int, b : int) : void
     POTATO : int = a + b # Add the two numbers
-    return POTATO
+    POTATO
 end
 
 # One more line!

@@ -64,21 +64,24 @@ object Tokens {
     case class In() extends Token
 
     // Operators
-    case class Plus() extends Token
-    case class Minus() extends Token
-    case class Times() extends Token
-    case class Divide() extends Token
-    case class Mod() extends Token
-    case class LShift() extends Token
-    case class RShift() extends Token
-    case class Equals() extends Token
-    case class Greater() extends Token
-    case class Less() extends Token
-    case class Bang() extends Token
-    case class Ternary() extends Token
-    case class InstanceFlag() extends Token
-    case class ClassFlag() extends Token
-    case class GlobalFlag() extends Token
+    case class Operator() extends Token
+    case class Plus() extends Operator
+    case class Minus() extends Operator
+    case class Times() extends Operator
+    case class Divide() extends Operator
+    case class Mod() extends Operator
+    case class LShift() extends Operator
+    case class RShift() extends Operator
+    case class Equals() extends Operator
+    case class Greater() extends Operator
+    case class Less() extends Operator
+    case class Bang() extends Operator
+    case class Ternary() extends Operator
+
+    case class VarFlag() extends Token
+    case class InstanceFlag() extends VarFlag
+    case class ClassFlag() extends VarFlag
+    case class GlobalFlag() extends VarFlag
     
     // Datatypes
     case class Handle(value: String) extends Token

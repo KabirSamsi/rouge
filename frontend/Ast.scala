@@ -4,6 +4,8 @@ object Ast {
 
     sealed trait TypedVar(name : string, typ: string)
     
+    sealed trait Type(name: string)
+    
     // Arithmetic Operators
     sealed trait Aop()
     case class Plus() extends Aop
@@ -47,7 +49,7 @@ object Ast {
     // Standard Expression
     case class AssignVar(name: TypedVar, contained : Exp) extends Statement
     case class Identifier(name: string) extends Exp
-    case class IfElse(guard: BExp, body : List[Expression]) extends Exp
+    case class IfElse(guards: List[BExp], body : List[Exp]) extends Exp
 
     // Data Structures
     sealed trait Iterable extends Exp
@@ -58,9 +60,13 @@ object Ast {
     // Large-Level Constructs
     case class Function(name: string, params: List[TypedVar], returnType : TypedVar, body : List[Exp]) extends Exp
     case class FnApply(name: string, args: List[Exp]) extends Exp
+    case class MethodCall(obj : string, fn : FnApply) extends Exp
+    case class InstantiateObject(fn : FnApply) extends Exp
     case class DotApply(obj: Exp, method: FnApply) extends Exp
     case class While(guard: BExp, body: List[Exp]) extends Exp
     case class ForEach(iterator : string, iterable: Iterable, body: List[Exp]) extends Exp
-    case class Class(name: string, instanceVars: List[TypedVar], methods: List[Function]) extends Exp
+    case class Class(name: string, classVars: List[TypedVar], methods: List[Function]) extends Exp
     case class Module(name: string, instanceVars: List[TypedVar], methods: List[Function]) extends Exp
+
+    sealed trait Program(classes : List[Class], functions: List[Function], body : List[Exp])
 }
