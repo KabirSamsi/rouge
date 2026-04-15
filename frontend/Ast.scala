@@ -35,14 +35,15 @@ object Ast {
     sealed trait AExp extends Exp
     case class RbInt(n : scala.Int) extends AExp
     case class RbFlt(n: scala.Float) extends AExp
-    case class ArithBin(a1: AExp, a2: AExp, op: Aop) extends AExp
+    case class ArithBin(a1: Exp, a2: Exp, op: Aop) extends AExp
 
     // Boolean Expressions
     sealed trait BExp extends Exp
     case class True() extends BExp
     case class False() extends BExp
-    case class BoolBin(b1: Exp, a2: Exp, op: CompOp) extends BExp
+    case class BoolBin(b1: BExp, b2: BExp, op: Bop) extends BExp
     case class BoolNot(a : BExp) extends BExp
+    case class CompBin(b1: Exp, b2: Exp, op: CompOp) extends BExp
 
     // Identifiers
     sealed trait Identifier extends Exp
@@ -75,11 +76,10 @@ object Ast {
 
     // Large-Level Constructs
     case class FnApply(name: String, args: List[Exp]) extends Exp
-    case class MethodCall(obj : ObjectName, fn : FnApply) extends Exp
     case class InstantiateObject(fn : FnApply) extends Exp
-    case class DotApply(obj: Exp, method: FnApply) extends Exp
+    case class MethodCall(obj: Exp, method: FnApply) extends Exp
     case class While(guard: BExp, body: List[Exp]) extends Exp
-    case class ForEach(iterator : String, iterable: Iterable, body: List[Exp]) extends Exp
+    case class ForEach(iterator : String, iterable: Exp, body: List[Exp]) extends Exp
 
     // Largest components
     case class Function(name: String, params: List[TypedVar], returnType : Type, body : List[Exp]) extends Exp
