@@ -63,25 +63,24 @@ object Tokens {
     case class For() extends Token
     case class In() extends Token
 
-    // Operators
-    case class Operator() extends Token
-    case class Plus() extends Operator
-    case class Minus() extends Operator
-    case class Times() extends Operator
-    case class Divide() extends Operator
-    case class Mod() extends Operator
-    case class LShift() extends Operator
-    case class RShift() extends Operator
-    case class Equals() extends Operator
-    case class Greater() extends Operator
-    case class Less() extends Operator
-    case class Bang() extends Operator
-    case class Ternary() extends Operator
+    // Tokens
+    case class Plus() extends Token
+    case class Minus() extends Token
+    case class Times() extends Token
+    case class Divide() extends Token
+    case class Mod() extends Token
+    case class LShift() extends Token
+    case class RShift() extends Token
+    case class Equals() extends Token
+    case class Greater() extends Token
+    case class Less() extends Token
+    case class Bang() extends Token
+    case class Ternary() extends Token
 
-    case class VarFlag() extends Token
-    case class InstanceFlag() extends VarFlag
-    case class ClassFlag() extends VarFlag
-    case class GlobalFlag() extends VarFlag
+    // Variable Flags
+    case class InstanceFlag() extends Token
+    case class ClassFlag() extends Token
+    case class GlobalFlag() extends Token
     
     // Datatypes
     case class Handle(value: String) extends Token
@@ -105,10 +104,17 @@ object Tokens {
     case class Geq() extends Token
     case class Leq() extends Token
     case class Neq() extends Token
+    case class Spaceship() extends Token
+    case class Carat() extends Token
+    case class Sim() extends Token
+    case class Match() extends Token
+    case class NMatch() extends Token
 
     case class Colon() extends Token
     case class Semicolon() extends Token
     case class Dot() extends Token
+    case class TwoDots() extends Token
+    case class ThreeDots() extends Token
     case class Comma() extends Token
     case class Doublecolon() extends Token
 
@@ -117,4 +123,8 @@ object Tokens {
     case class SingleQuote() extends Token
     case class Backslash() extends Token
     case class LineBreak() extends Token
+
+    // Type indicators
+    case class ArrKeyword() extends Token
+    case class DictKeyword() extends Token
 }

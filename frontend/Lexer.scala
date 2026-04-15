@@ -16,6 +16,8 @@ object Lexer {
         '<' -> Tokens.Less(),
         '!' -> Tokens.Bang(),
         '%' -> Tokens.Mod(),
+        '^' -> Tokens.Carat(),
+        '~' -> Tokens.Sim(),
         '?' -> Tokens.Ternary(),
         '@' -> Tokens.InstanceFlag(),
         '$' -> Tokens.GlobalFlag(),
@@ -67,14 +69,16 @@ object Lexer {
         "end" -> Tokens.End(),
         "true" -> Tokens.True(),
         "false" -> Tokens.False(),
-        "and" -> Tokens.And(),
-        "or" -> Tokens.Or(),
+        "&&" -> Tokens.And(),
+        "||" -> Tokens.Or(),
         "not" -> Tokens.Not(),
         "def" -> Tokens.Def(),
         "defined" -> Tokens.Defined(),
         "return" -> Tokens.Return(),
         "for" -> Tokens.For(),
-        "in" -> Tokens.In()
+        "in" -> Tokens.In(),
+        "arr" -> Tokens.ArrKeyword(),
+        "dict" -> Tokens.DictKeyword()
     )
 
     def turn_dec_float(number: scala.Float) : scala.Float = {
@@ -170,7 +174,7 @@ object Lexer {
     }
     
     /*
-        * Optimizes token stream through operator fusion, integer accumulation, line breaks, etc.
+        * Optimizes token stream through lex-level operator fusion, integer accumulation, line breaks, etc.
         * @param tokens – Stream of tokens
         * @return Optimized stream of tokens
     */
@@ -192,7 +196,12 @@ object Lexer {
             case Tokens.Greater() :: Tokens.Greater() :: tl => Tokens.RShift() :: lex_opt(tl)
             case Tokens.Less() :: Tokens.Less() :: tl => Tokens.LShift() :: lex_opt(tl)
             case Tokens.InstanceFlag() :: Tokens.InstanceFlag() :: tl => lex_opt(Tokens.ClassFlag() :: tl)
-
+            case Tokens.Dot() :: Tokens.Dot() :: tl => lex_opt(Tokens.TwoDots() :: tl)
+            case Tokens.TwoDots() :: Tokens.Dot() :: tl => lex_opt(Tokens.ThreeDots() :: tl)
+            case Tokens.Leq() :: Tokens.Greater() :: tl => lex_opt(Tokens.Spaceship() :: tl)
+            case Tokens.Equals() :: Tokens.Sim() :: tl => lex_opt(Tokens.Match() :: tl)
+            case Tokens.Bang() :: Tokens.Sim() :: tl => lex_opt(Tokens.NMatch() :: tl)
+            
             /* Line Break Optimization for CFG Generation */
             case Tokens.LineBreak() :: Tokens.LineBreak() :: tl => lex_opt(Tokens.LineBreak() :: tl)
             case Tokens.Comma() :: Tokens.LineBreak() :: tl => lex_opt(Tokens.Comma() :: tl)
@@ -224,7 +233,7 @@ object Lexer {
                 if v.equals(v.toUpperCase())
                 then Tokens.Const(v)
                 else Tokens.Handle(v)) :: lex_opt(tl)
-
+            
             /* Default case */
             case hd :: tl => hd :: lex_opt(tl)
     }

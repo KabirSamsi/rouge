@@ -10,7 +10,7 @@ class Person
         puts "Hello, my name is #{@name} and I am #{@age} years old."
     end
 
-    def increase_age(new_age : int) : void
+    def increase_age(new_age : int) : dict[int, string]
         if (age > new_age)
             while (@age < new_age)
                 age += 1
