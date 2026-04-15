@@ -5,7 +5,7 @@ import scala.io.Source
 import scala.compiletime.ops.int
 import scala.compiletime.ops.boolean
 
-object CFG {
+object Parser {
 
   def main(args: Array[String]) : Unit = {
     val filename = args(0)
